@@ -2,7 +2,25 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "WebFetch(domain:freesvg.org)",
+      "Bash(cd:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:www.svgrepo.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:shadcn-ui.com)",
+      "WebSearch",
+      "WebFetch(domain:www.shadcn.io)",
+      "WebFetch(domain:tailkits.com)",
+      "WebFetch(domain:vercel.com)",
+      "WebFetch(domain:geoportal.statistics.gov.uk)",
+      "WebFetch(domain:opendata.arcgis.com)",
+      "WebFetch(domain:hub.arcgis.com)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(gh auth:*)"
     ]
   }
 }

@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  Show,
-  UserButton,
-} from "@clerk/nextjs";
+import Link from "next/link";
+import { Geist, Geist_Mono, Orbitron } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
+import NavBar from "@/components/NavBar";
+import { Suspense } from "react";
+import SearchVehiclesLink from "@/components/SearchVehiclesLink";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,6 +14,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const orbitron = Orbitron({
+  variable: "--font-orbitron",
   subsets: ["latin"],
 });
 
@@ -32,20 +35,39 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased`}
       >
-        <ClerkProvider>
-          <header>
-            <Show when="signed-out">
-              <SignInButton mode="modal" />
-              <SignUpButton mode="modal" />
-            </Show>
-            <Show when="signed-in">
-              <UserButton />
-            </Show>
+        <AuthProvider>
+          <header className="flex items-center justify-between px-6 py-4 border-b bg-white shadow-sm">
+            <Link
+              href="/"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
+              <h1
+                className="text-4xl font-bold tracking-tight leading-none text-red-600 underline"
+                style={{ fontFamily: "var(--font-orbitron)" }}
+              >
+                M8 Cars
+              </h1>
+            </Link>
+            <div className="flex items-center gap-3">
+              <Suspense
+                fallback={
+                  <a
+                    href="/data-list"
+                    className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity"
+                  >
+                    Search Vehicles
+                  </a>
+                }
+              >
+                <SearchVehiclesLink className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity" />
+              </Suspense>
+              <NavBar />
+            </div>
           </header>
           {children}
-        </ClerkProvider>
+        </AuthProvider>
       </body>
     </html>
   );

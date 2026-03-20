@@ -65,9 +65,19 @@ export default function NewVehiclePage() {
     const res = await fetch("/api/vehicles/images", { method: "POST", body: fd });
     const json = await res.json();
 
+    if (!res.ok || !json.url) {
+      setImages((prev) => {
+        const next = [...prev] as typeof prev;
+        next[index] = emptySlot();
+        return next;
+      });
+      setError(`Photo ${index + 1} failed to upload: ${json.error ?? "Unknown error"}`);
+      return;
+    }
+
     setImages((prev) => {
       const next = [...prev] as typeof prev;
-      next[index] = { file, preview, uploading: false, url: json.url ?? null };
+      next[index] = { file, preview, uploading: false, url: json.url };
       return next;
     });
   }
@@ -117,8 +127,8 @@ export default function NewVehiclePage() {
       return;
     }
 
-    if (images.some((img) => !img.url)) {
-      setError("Please upload all 3 photos before saving.");
+    if (!images.some((img) => img.url)) {
+      setError("Please upload at least 1 photo before saving.");
       return;
     }
 

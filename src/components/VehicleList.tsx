@@ -111,7 +111,7 @@ export default function VehicleList({ initialData }: VehicleListProps) {
     setLoading(true);
     const nextPage = page + 1;
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+
       const res = await fetch(buildUrl(nextPage, filtersRef.current, userPostcodeRef.current));
       const json: PagedResponse = await res.json();
       setVehicles((prev) => {
@@ -147,17 +147,19 @@ export default function VehicleList({ initialData }: VehicleListProps) {
     <>
     <VehicleFilters filters={filters} onChange={setFilters} total={total} />
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 px-6 py-6 transition-opacity duration-200 ${filtering ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
-      {vehicles.map((vehicle) => (
+      {vehicles.map((vehicle, i) => (
         <Link key={vehicle.id} href={`/vehicles/${vehicle.id}`} className="block">
           <Card className="shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer">
             <CardContent className="space-y-2 pt-4">
               {vehicle.img1 && (
                 <div className="relative h-48 w-full">
                   <Image
-                    src={vehicle.img1.startsWith("http") ? new URL(vehicle.img1).pathname : vehicle.img1}
+                    src={vehicle.img1}
                     alt={`${vehicle.make} ${vehicle.model}`}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover rounded"
+                    priority={i === 0}
                   />
                 </div>
               )}

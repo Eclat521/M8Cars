@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 
+const bodyTypes = ["Hatchback", "Saloon", "SUV", "Estate", "Coupe"];
 const fuelTypes = ["Diesel", "Electric", "Hybrid", "Petrol"];
+const gearboxTypes = ["Manual", "Automatic"];
 
 interface ImageSlot {
   file: File | null;
@@ -14,7 +16,12 @@ interface ImageSlot {
   url: string | null;
 }
 
-const emptySlot = (): ImageSlot => ({ file: null, preview: null, uploading: false, url: null });
+const emptySlot = (): ImageSlot => ({
+  file: null,
+  preview: null,
+  uploading: false,
+  url: null,
+});
 
 export default function NewVehiclePage() {
   const router = useRouter();
@@ -22,18 +29,21 @@ export default function NewVehiclePage() {
   const [error, setError] = useState<string | null>(null);
   const [lookingUp, setLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
-  const [images, setImages] = useState<[ImageSlot, ImageSlot, ImageSlot]>([emptySlot(), emptySlot(), emptySlot()]);
+  const [images, setImages] = useState<
+    [ImageSlot, ImageSlot, ImageSlot, ImageSlot]
+  >([emptySlot(), emptySlot(), emptySlot(), emptySlot()]);
 
   const [form, setForm] = useState({
     make: "",
     model: "",
     registration: "",
+    bodyType: "",
     fuelType: "",
     engineSize: "",
     yearOfManufacture: "",
     colour: "",
-    variant: "",
     doors: "",
+    gearbox: "",
     price: "",
     mileage: "",
     postcode: "",
@@ -62,22 +72,15 @@ export default function NewVehiclePage() {
 
     const fd = new FormData();
     fd.append("file", file);
-    const res = await fetch("/api/vehicles/images", { method: "POST", body: fd });
+    const res = await fetch("/api/vehicles/images", {
+      method: "POST",
+      body: fd,
+    });
     const json = await res.json();
-
-    if (!res.ok || !json.url) {
-      setImages((prev) => {
-        const next = [...prev] as typeof prev;
-        next[index] = emptySlot();
-        return next;
-      });
-      setError(`Photo ${index + 1} failed to upload: ${json.error ?? "Unknown error"}`);
-      return;
-    }
 
     setImages((prev) => {
       const next = [...prev] as typeof prev;
-      next[index] = { file, preview, uploading: false, url: json.url };
+      next[index] = { file, preview, uploading: false, url: json.url ?? null };
       return next;
     });
   }
@@ -95,24 +98,34 @@ export default function NewVehiclePage() {
     setLookingUp(true);
     setLookupError(null);
     try {
-      const res = await fetch(`/api/vehicles/lookup?vrm=${encodeURIComponent(form.registration)}`);
-      if (!res.ok) throw new Error('Lookup failed');
+      const res = await fetch(
+        `/api/vehicles/lookup?vrm=${encodeURIComponent(form.registration)}`,
+      );
+      if (!res.ok) throw new Error("Lookup failed");
       const data = await res.json();
 
+      const str = (v: unknown) => (v != null ? String(v) : null);
       setForm((prev) => ({
         ...prev,
-        make: data.ModelData?.Make ?? prev.make,
-        model: data.ModelData?.Range ?? prev.model,
-        title: data.ModelData?.Make && data.ModelData?.Range ? `${data.ModelData.Make} ${data.ModelData.Range} For Sale` : prev.title,
-        colour: data.ColourDetails?.CurrentColour ? toTitleCase(data.ColourDetails.CurrentColour) : prev.colour,
-        yearOfManufacture: data.VehicleIdentification?.YearOfManufacture?.toString() ?? prev.yearOfManufacture,
-        fuelType: data.ModelData?.FuelType ?? prev.fuelType,
-        engineSize: data.DvlaTechnicalDetails?.EngineCapacityCc?.toString() ?? prev.engineSize,
-        variant: data.ModelData?.ModelVariant ?? prev.variant,
-        doors: data.BodyDetails?.NumberOfDoors?.toString() ?? prev.doors,
+        make: str(data.make) ?? prev.make,
+        model: str(data.model) ?? prev.model,
+        title:
+          data.make && data.model
+            ? `${data.make} ${data.model} For Sale`
+            : prev.title,
+        colour: str(data.colour) ?? prev.colour,
+        yearOfManufacture:
+          str(data.yearOfManufacture) ?? prev.yearOfManufacture,
+        fuelType: str(data.fuelType) ?? prev.fuelType,
+        engineSize: str(data.engineCapacity) ?? prev.engineSize,
+        doors: str(data.doors) ?? prev.doors,
+        bodyType: str(data.bodyType) ?? prev.bodyType,
+        gearbox: str(data.gearbox) ?? prev.gearbox,
       }));
     } catch {
-      setLookupError('Could not retrieve vehicle details. Check the registration and try again.');
+      setLookupError(
+        "Could not retrieve vehicle details. Check the registration and try again.",
+      );
     } finally {
       setLookingUp(false);
     }
@@ -127,12 +140,7 @@ export default function NewVehiclePage() {
       return;
     }
 
-    if (!images.some((img) => img.url)) {
-      setError("Please upload at least 1 photo before saving.");
-      return;
-    }
-
-    const [img1, img2, img3] = images.map((img) => img.url);
+    const [img1, img2, img3, img4] = images.map((img) => img.url);
 
     setSubmitting(true);
     try {
@@ -143,12 +151,13 @@ export default function NewVehiclePage() {
           make: form.make,
           model: form.model,
           registration: form.registration,
-          variant: form.variant,
+          bodyType: form.bodyType,
           fuelType: form.fuelType,
           engineSize: parseInt(form.engineSize),
           yearOfManufacture: parseInt(form.yearOfManufacture),
           colour: form.colour,
-          doors: form.doors ? parseInt(form.doors) : null,
+          doors: parseInt(form.doors),
+          gearbox: form.gearbox,
           price: form.price,
           mileage: form.mileage ? parseInt(form.mileage) : null,
           postcode: form.postcode,
@@ -163,6 +172,7 @@ export default function NewVehiclePage() {
           img1: img1 ?? null,
           img2: img2 ?? null,
           img3: img3 ?? null,
+          img4: img4 ?? null,
         }),
       });
 
@@ -180,21 +190,58 @@ export default function NewVehiclePage() {
     }
   }
 
-  const inputClass = "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400";
+  const inputClass =
+    "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400";
   const selectClass = inputClass;
   const labelClass = "block text-sm font-medium mb-1";
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold"><span className="bg-gray-600 text-white rounded-md px-2 py-0.5">Add New Vehicle</span></h1>
+    <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <h1 className="text-2xl font-bold">
+        <span className="bg-gray-600 text-white rounded-md px-2 py-0.5">
+          Add New Vehicle
+        </span>
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Registration */}
+        <div className="pt-6">
+          <label className="block text-sm font-medium mb-1 bg-gray-700 text-white rounded px-2 py-0.5 inline-block">
+            Registration *
+          </label>
+          <div className="flex items-center gap-3">
+            <input
+              required
+              className="border-2 border-black rounded px-4 py-2 text-2xl font-bold tracking-widest uppercase bg-yellow-300 text-black placeholder-black/30 focus:outline-none focus:ring-2 focus:ring-yellow-500 w-48 text-center font-['Charles_Wright','Arial_Narrow',sans-serif]"
+              value={form.registration}
+              onChange={(e) =>
+                setField("registration", e.target.value.toUpperCase())
+              }
+              placeholder="AB12 CDE"
+            />
+            <button
+              type="button"
+              onClick={handleLookup}
+              disabled={lookingUp || !form.registration}
+              className="px-4 py-2 text-sm bg-gray-700 text-white rounded-md hover:bg-gray-800 disabled:opacity-50 whitespace-nowrap"
+            >
+              {lookingUp ? "Looking up…" : "Look Up"}
+            </button>
+          </div>
+          {lookupError && (
+            <p className="text-xs text-red-600 mt-1">{lookupError}</p>
+          )}
+        </div>
 
         {/* Images */}
         <Card className="shadow-lg">
           <CardContent className="pt-6 space-y-4">
-            <h2 className="text-base font-semibold"><span className="bg-gray-600 text-white rounded-md px-2 py-0.5">Photos</span></h2>
-            <div className="grid grid-cols-3 gap-4">
+            <h2 className="text-base font-semibold">
+              <span className="bg-gray-600 text-white rounded-md px-2 py-0.5">
+                33Photos
+              </span>
+            </h2>
+            <div className="grid grid-cols-4 gap-4">
               {images.map((slot, i) => (
                 <ImageUploadSlot
                   key={i}
@@ -211,81 +258,187 @@ export default function NewVehiclePage() {
         {/* Core details */}
         <Card className="shadow-lg">
           <CardContent className="pt-6 space-y-4">
-            <h2 className="text-base font-semibold"><span className="bg-gray-600 text-white rounded-md px-2 py-0.5">Vehicle Details</span></h2>
+            <h2 className="text-base font-semibold">
+              <span className="bg-gray-600 text-white rounded-md px-2 py-0.5">
+                Vehicle Details
+              </span>
+            </h2>
 
-            <div className="w-64">
-              <label className={labelClass}>Registration *</label>
-              <div className="flex gap-2">
-                <input required className="border-2 border-black rounded px-3 py-2 text-xl font-bold tracking-widest uppercase bg-yellow-300 text-black placeholder-black/40 focus:outline-none focus:ring-2 focus:ring-yellow-500 w-full text-center" value={form.registration} onChange={(e) => setField("registration", e.target.value.toUpperCase())} placeholder="AB12 CDE" />
-                <button
-                  type="button"
-                  onClick={handleLookup}
-                  disabled={lookingUp || !form.registration}
-                  className="px-3 py-2 text-sm bg-gray-700 text-white rounded-md hover:bg-gray-800 disabled:opacity-50 whitespace-nowrap"
-                >
-                  {lookingUp ? 'Looking up…' : 'Look Up'}
-                </button>
-              </div>
-              {lookupError && <p className="text-xs text-red-600 mt-1">{lookupError}</p>}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-x-10 gap-y-4">
               <div>
                 <label className={labelClass}>Title *</label>
-                <input required className={inputClass} value={form.title} onChange={(e) => setField("title", e.target.value)} placeholder="e.g. Ford Focus 1.6 Zetec" />
+                <input
+                  required
+                  className={inputClass}
+                  value={form.title}
+                  onChange={(e) => setField("title", e.target.value)}
+                  placeholder="e.g. Ford Focus 1.6 Zetec"
+                />
               </div>
               <div>
                 <label className={labelClass}>Make *</label>
-                <input required className={inputClass} value={form.make} onChange={(e) => setField("make", e.target.value)} placeholder="e.g. Ford" />
+                <input
+                  required
+                  className={inputClass}
+                  value={form.make}
+                  onChange={(e) => setField("make", e.target.value)}
+                  placeholder="e.g. Ford"
+                />
               </div>
               <div>
                 <label className={labelClass}>Model *</label>
-                <input required className={inputClass} value={form.model} onChange={(e) => setField("model", e.target.value)} placeholder="e.g. Focus" />
-              </div>
-              <div>
-                <label className={labelClass}>Variant</label>
-                <input className={inputClass} value={form.variant} onChange={(e) => setField("variant", e.target.value)} placeholder="e.g. Sportback TDI Quattro" />
+                <input
+                  required
+                  className={inputClass}
+                  value={form.model}
+                  onChange={(e) => setField("model", e.target.value)}
+                  placeholder="e.g. Focus"
+                />
               </div>
               <div>
                 <label className={labelClass}>Year *</label>
-                <input required type="number" className={inputClass} value={form.yearOfManufacture} onChange={(e) => setField("yearOfManufacture", e.target.value)} placeholder="e.g. 2019" min={1900} max={new Date().getFullYear()} />
+                <input
+                  required
+                  type="number"
+                  className={inputClass}
+                  value={form.yearOfManufacture}
+                  onChange={(e) =>
+                    setField("yearOfManufacture", e.target.value)
+                  }
+                  placeholder="e.g. 2019"
+                  min={1900}
+                  max={new Date().getFullYear()}
+                />
               </div>
               <div>
                 <label className={labelClass}>Colour *</label>
-                <input required className={inputClass} value={form.colour} onChange={(e) => setField("colour", e.target.value)} placeholder="e.g. Silver" />
+                <input
+                  required
+                  className={inputClass}
+                  value={form.colour}
+                  onChange={(e) => setField("colour", e.target.value)}
+                  placeholder="e.g. Silver"
+                />
               </div>
               <div>
-                <label className={labelClass}>Fuel Type *</label>
-                <select required className={selectClass} value={form.fuelType} onChange={(e) => setField("fuelType", e.target.value)}>
+                <label className={labelClass}>Body Type *</label>
+                <select
+                  required
+                  className={selectClass}
+                  value={form.bodyType}
+                  onChange={(e) => setField("bodyType", e.target.value)}
+                >
                   <option value="">Select…</option>
-                  {fuelTypes.map((f) => <option key={f} value={f}>{f}</option>)}
+                  {bodyTypes.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Engine Size (cc) *</label>
-                <input required type="number" className={inputClass} value={form.engineSize} onChange={(e) => setField("engineSize", e.target.value)} placeholder="e.g. 1600" min={0} />
+                <label className={labelClass}>Fuel Type *</label>
+                <select
+                  required
+                  className={selectClass}
+                  value={form.fuelType}
+                  onChange={(e) => setField("fuelType", e.target.value)}
+                >
+                  <option value="">Select…</option>
+                  {fuelTypes.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
-                <label className={labelClass}>Doors</label>
-                <input type="number" className={inputClass} value={form.doors} onChange={(e) => setField("doors", e.target.value)} placeholder="e.g. 5" min={2} max={7} />
+                <label className={labelClass}>Gearbox *</label>
+                <select
+                  required
+                  className={selectClass}
+                  value={form.gearbox}
+                  onChange={(e) => setField("gearbox", e.target.value)}
+                >
+                  <option value="">Select…</option>
+                  {gearboxTypes.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Doors *</label>
+                <input
+                  required
+                  type="number"
+                  className={inputClass}
+                  value={form.doors}
+                  onChange={(e) => setField("doors", e.target.value)}
+                  placeholder="e.g. 5"
+                  min={2}
+                  max={7}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Engine Size (cc) *</label>
+                <input
+                  required
+                  type="number"
+                  className={inputClass}
+                  value={form.engineSize}
+                  onChange={(e) => setField("engineSize", e.target.value)}
+                  placeholder="e.g. 1600"
+                  min={0}
+                />
               </div>
               <div>
                 <label className={labelClass}>Mileage</label>
-                <input type="number" className={inputClass} value={form.mileage} onChange={(e) => setField("mileage", e.target.value)} placeholder="e.g. 45000" min={0} />
+                <input
+                  type="number"
+                  className={inputClass}
+                  value={form.mileage}
+                  onChange={(e) => setField("mileage", e.target.value)}
+                  placeholder="e.g. 45000"
+                  min={0}
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 bg-gray-700 text-white rounded px-2 py-0.5 inline-block">Price (£) *</label>
-                <input required type="number" className={inputClass} value={form.price} onChange={(e) => setField("price", e.target.value)} placeholder="e.g. 8995" min={0} step="0.01" />
+                <label className={labelClass}>Price (£) *</label>
+                <input
+                  required
+                  type="number"
+                  className={inputClass}
+                  value={form.price}
+                  onChange={(e) => setField("price", e.target.value)}
+                  placeholder="e.g. 8995"
+                  min={0}
+                  step="0.01"
+                />
               </div>
               <div>
-                <label className={labelClass}>Your Postcode *</label>
-                <input required className={inputClass} value={form.postcode} onChange={(e) => setField("postcode", e.target.value)} placeholder="e.g. SW1A 1AA" />
+                <label className={labelClass}>Postcode *</label>
+                <input
+                  required
+                  className={inputClass}
+                  value={form.postcode}
+                  onChange={(e) => setField("postcode", e.target.value)}
+                  placeholder="e.g. SW1A 1AA"
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 bg-gray-700 text-white rounded px-2 py-0.5 inline-block">Description *</label>
-              <textarea required className={`${inputClass} h-24 resize-none`} value={form.description} onChange={(e) => setField("description", e.target.value)} placeholder="Describe the vehicle…" maxLength={500} />
+              <label className={labelClass}>Description *</label>
+              <textarea
+                required
+                className={`${inputClass} h-24 resize-none`}
+                value={form.description}
+                onChange={(e) => setField("description", e.target.value)}
+                placeholder="Describe the vehicle…"
+                maxLength={500}
+              />
             </div>
           </CardContent>
         </Card>
@@ -293,17 +446,26 @@ export default function NewVehiclePage() {
         {/* Features */}
         <Card className="shadow-lg">
           <CardContent className="pt-6 space-y-4">
-            <h2 className="text-base font-semibold"><span className="bg-gray-600 text-white rounded-md px-2 py-0.5">Features</span></h2>
+            <h2 className="text-base font-semibold">
+              <span className="bg-gray-600 text-white rounded-md px-2 py-0.5">
+                Features
+              </span>
+            </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {([
-                ["alloyWheels", "Alloy Wheels"],
-                ["airConditioning", "Air Conditioning"],
-                ["radioCdSpeakers", "Radio/CD/Speakers"],
-                ["leatherSeats", "Leather Seats"],
-                ["powerWindows", "Power Windows"],
-                ["navigationSystem", "Navigation System"],
-              ] as [keyof typeof form, string][]).map(([key, label]) => (
-                <label key={key} className="flex items-center gap-2 text-sm cursor-pointer">
+              {(
+                [
+                  ["alloyWheels", "Alloy Wheels"],
+                  ["airConditioning", "Air Conditioning"],
+                  ["radioCdSpeakers", "Radio/CD/Speakers"],
+                  ["leatherSeats", "Leather Seats"],
+                  ["powerWindows", "Power Windows"],
+                  ["navigationSystem", "Navigation System"],
+                ] as [keyof typeof form, string][]
+              ).map(([key, label]) => (
+                <label
+                  key={key}
+                  className="flex items-center gap-2 text-sm cursor-pointer"
+                >
                   <input
                     type="checkbox"
                     checked={form[key] as boolean}
@@ -340,7 +502,12 @@ export default function NewVehiclePage() {
   );
 }
 
-function ImageUploadSlot({ slot, label, onChange, onRemove }: {
+function ImageUploadSlot({
+  slot,
+  label,
+  onChange,
+  onRemove,
+}: {
   slot: ImageSlot;
   label: string;
   onChange: (file: File) => void;
@@ -357,7 +524,14 @@ function ImageUploadSlot({ slot, label, onChange, onRemove }: {
       >
         {slot.preview ? (
           <>
-            <Image src={slot.preview} alt={label} fill className="object-cover" />
+            <Image
+              src={slot.preview}
+              alt={label}
+              fill
+              unoptimized
+              sizes="25vw"
+              className="object-cover"
+            />
             {slot.uploading && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <span className="text-white text-xs">Uploading…</span>
@@ -366,7 +540,10 @@ function ImageUploadSlot({ slot, label, onChange, onRemove }: {
             {!slot.uploading && (
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); onRemove(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
                 className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm leading-none"
                 aria-label="Remove image"
               >
@@ -383,12 +560,11 @@ function ImageUploadSlot({ slot, label, onChange, onRemove }: {
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onChange(f); }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onChange(f);
+        }}
       />
     </div>
   );
-}
-
-function toTitleCase(str: string) {
-  return str.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 }

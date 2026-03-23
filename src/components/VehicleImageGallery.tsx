@@ -43,10 +43,13 @@ export default function VehicleImageGallery({ images, alt }: Props) {
             aria-label={`View image ${i + 1}`}
           >
             <Image
-              src={src.startsWith("http") ? new URL(src).pathname : src}
+              src={src}
               alt={`${alt} image ${i + 1}`}
               fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-200 group-hover:scale-105"
+              loading={i === 0 ? "eager" : "lazy"}
+              priority={i === 0}
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 rounded-lg" />
           </button>
@@ -65,7 +68,7 @@ export default function VehicleImageGallery({ images, alt }: Props) {
           >
             <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
               <Image
-                src={images[lightboxIndex].startsWith("http") ? new URL(images[lightboxIndex]).pathname : images[lightboxIndex]}
+                src={images[lightboxIndex]}
                 alt={`${alt} image ${lightboxIndex + 1}`}
                 fill
                 className="object-contain"

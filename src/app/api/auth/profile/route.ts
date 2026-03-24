@@ -20,6 +20,8 @@ export async function PATCH(req: NextRequest) {
     .where(eq(users.id, session.sub))
     .returning();
 
+  if (!updated) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
   const token = await signToken({
     sub: updated.id,
     email: updated.email,

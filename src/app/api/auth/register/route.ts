@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
       .values({ email: email.toLowerCase().trim(), passwordHash, firstName, lastName, postcode: postcode?.toUpperCase().trim() || null })
       .returning({ id: users.id, email: users.email, firstName: users.firstName, lastName: users.lastName });
 
+    if (!user) throw new Error('Insert returned no rows');
+
     const token = await signToken({ sub: user.id, email: user.email, firstName: user.firstName ?? undefined, lastName: user.lastName ?? undefined });
 
     const res = NextResponse.json({ ok: true });

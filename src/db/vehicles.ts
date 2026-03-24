@@ -11,6 +11,12 @@ function normalisePostcode(pc: string): string {
   return s.slice(0, -3) + " " + s.slice(-3);
 }
 
+/** Returns true if the postcode string is long enough to be a valid UK postcode (min 5 chars: e.g. "W1 1AA"). */
+function isValidPostcode(pc: string): boolean {
+  const s = pc.replace(/\s+/g, "");
+  return s.length >= 5 && s.length <= 8;
+}
+
 
 export type SortOption = 'price_asc' | 'price_desc' | 'year_asc' | 'year_desc' | 'mileage_asc' | 'mileage_desc' | 'distance_asc';
 
@@ -36,7 +42,7 @@ export async function getVehiclesPaged(query: VehicleQuery): Promise<{ data: Veh
   if (bodyType) conditions.push(eq(vehicles.bodyType, bodyType));
   if (fuelType) conditions.push(eq(vehicles.fuelType, fuelType));
   if (gearbox) conditions.push(eq(vehicles.gearbox, gearbox));
-  if (postcode && distance) {
+  if (postcode && isValidPostcode(postcode) && distance) {
     const metres = distance * 1609.344;
     conditions.push(rawSql`${vehicles.postcode} IN (
       SELECT p2.postcode FROM postcodes p1, postcodes p2
@@ -56,7 +62,7 @@ export async function getVehiclesPaged(query: VehicleQuery): Promise<{ data: Veh
       case 'mileage_asc': return asc(vehicles.mileage);
       case 'mileage_desc': return desc(vehicles.mileage);
       case 'distance_asc':
-        if (postcode) {
+        if (postcode && isValidPostcode(postcode)) {
           return rawSql`(
             SELECT ST_Distance(p1.location, p2.location)
             FROM postcodes p1, postcodes p2

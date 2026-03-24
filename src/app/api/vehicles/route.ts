@@ -15,8 +15,13 @@ export async function GET(req: NextRequest) {
   const distance = distanceParam ? parseFloat(distanceParam) : undefined;
   const postcode = params.get('postcode') ?? undefined;
 
-  const result = await getVehiclesPaged({ page, makes, model, bodyType, fuelType, gearbox, sort, distance, postcode });
-  return NextResponse.json(result);
+  try {
+    const result = await getVehiclesPaged({ page, makes, model, bodyType, fuelType, gearbox, sort, distance, postcode });
+    return NextResponse.json(result);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Failed to fetch vehicles' }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {

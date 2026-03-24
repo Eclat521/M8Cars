@@ -5,7 +5,7 @@ import { users } from '@/db/schema';
 import { signToken, COOKIE_NAME } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
-  const { email, password, firstName, lastName } = await req.json();
+  const { email, password, firstName, lastName, postcode } = await req.json();
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   try {
     const [user] = await db
       .insert(users)
-      .values({ email: email.toLowerCase().trim(), passwordHash, firstName, lastName })
+      .values({ email: email.toLowerCase().trim(), passwordHash, firstName, lastName, postcode: postcode?.toUpperCase().trim() || null })
       .returning({ id: users.id, email: users.email, firstName: users.firstName, lastName: users.lastName });
 
     const token = await signToken({ sub: user.id, email: user.email, firstName: user.firstName ?? undefined, lastName: user.lastName ?? undefined });

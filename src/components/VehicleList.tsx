@@ -162,6 +162,7 @@ export default function VehicleList({ initialData }: VehicleListProps) {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover rounded"
                     priority={i === 0}
+                    loading={i === 0 ? "eager" : "lazy"}
                   />
                 </div>
               )}

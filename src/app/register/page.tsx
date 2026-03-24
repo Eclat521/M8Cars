@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [postcode, setPostcode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +23,7 @@ export default function RegisterPage() {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, firstName, lastName }),
+      body: JSON.stringify({ email, password, firstName, lastName, postcode }),
     });
     if (res.ok) {
       await refresh();
@@ -46,6 +47,11 @@ export default function RegisterPage() {
         <div>
           <label className="block text-sm font-medium mb-1">Last name</label>
           <input type="text" value={lastName} onChange={e => setLastName(e.target.value)}
+            className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Postcode</label>
+          <input type="text" value={postcode} onChange={e => setPostcode(e.target.value.toUpperCase())}
             className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
         </div>
         <div>

@@ -16,6 +16,7 @@ interface ImageSlot {
   preview: string | null;
   uploading: boolean;
   url: string | null;
+  error: string | null;
 }
 
 const emptySlot = (): ImageSlot => ({
@@ -23,6 +24,7 @@ const emptySlot = (): ImageSlot => ({
   preview: null,
   uploading: false,
   url: null,
+  error: null,
 });
 
 export default function NewVehiclePage() {
@@ -74,17 +76,25 @@ export default function NewVehiclePage() {
 
     const fd = new FormData();
     fd.append("file", file);
-    const res = await fetch("/api/vehicles/images", {
-      method: "POST",
-      body: fd,
-    });
-    const json = await res.json();
-
-    setImages((prev) => {
-      const next = [...prev] as typeof prev;
-      next[index] = { file, preview, uploading: false, url: json.url ?? null };
-      return next;
-    });
+    try {
+      const res = await fetch("/api/vehicles/images", {
+        method: "POST",
+        body: fd,
+      });
+      const json = await res.json();
+      const uploadError = !res.ok || !json.url ? (json.error ?? "Upload failed") : null;
+      setImages((prev) => {
+        const next = [...prev] as typeof prev;
+        next[index] = { file, preview, uploading: false, url: json.url ?? null, error: uploadError };
+        return next;
+      });
+    } catch (err) {
+      setImages((prev) => {
+        const next = [...prev] as typeof prev;
+        next[index] = { file, preview, uploading: false, url: null, error: "Upload failed" };
+        return next;
+      });
+    }
   }
 
   function removeImage(index: number) {
@@ -139,6 +149,10 @@ export default function NewVehiclePage() {
 
     if (images.some((img) => img.uploading)) {
       setError("Please wait for images to finish uploading.");
+      return;
+    }
+    if (images.some((img) => img.error)) {
+      setError("One or more photos failed to upload. Please remove them and try again.");
       return;
     }
 
@@ -504,7 +518,8 @@ function ImageUploadSlot({
   label: string;
   onChange: (file: File) => void;
   onRemove: () => void;
-}) {
+}
+) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -543,6 +558,8 @@ function ImageUploadSlot({
               </button>
             )}
           </>
+        ) : slot.error ? (
+          <span className="text-red-500 text-xs text-center px-2">{slot.error}</span>
         ) : (
           <span className="text-gray-400 text-sm">Click to upload</span>
         )}

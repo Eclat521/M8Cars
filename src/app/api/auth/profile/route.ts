@@ -3,12 +3,20 @@ import db from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSessionUser, signToken, COOKIE_NAME } from '@/lib/auth';
+import { postcodeExists } from '@/db/vehicles';
 
 export async function PATCH(req: NextRequest) {
   const session = await getSessionUser();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { firstName, lastName, postcode } = await req.json();
+
+  if (postcode !== undefined && postcode.trim().length > 0) {
+    const valid = await postcodeExists(postcode.trim());
+    if (!valid) {
+      return NextResponse.json({ error: 'Postcode not found — please enter a valid UK postcode' }, { status: 400 });
+    }
+  }
 
   const [updated] = await db
     .update(users)

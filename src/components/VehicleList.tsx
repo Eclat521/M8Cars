@@ -188,7 +188,7 @@ export default function VehicleList({ initialData }: VehicleListProps) {
               )}
               <div>
                 <p className="text-lg font-semibold">{vehicle.yearOfManufacture} {vehicle.make} {vehicle.model}</p>
-                <p className="text-sm text-muted-foreground"><span className="bg-gray-600 text-white rounded-md px-2 py-0.5 inline-flex items-center gap-1"><Car className="w-3.5 h-3.5" />{vehicle.mileage?.toLocaleString()} miles</span></p>
+                <p className="text-sm text-muted-foreground"><span className="inline-flex items-center gap-1 font-semibold"><Car className="w-3.5 h-3.5" />{vehicle.mileage?.toLocaleString()} miles</span></p>
               </div>
               <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
                 <span><strong>Price:</strong> £{Number(vehicle.price).toLocaleString()}</span>

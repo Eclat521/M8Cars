@@ -3,12 +3,22 @@ import bcrypt from 'bcryptjs';
 import db from '@/db';
 import { users } from '@/db/schema';
 import { signToken, COOKIE_NAME } from '@/lib/auth';
+import { postcodeExists } from '@/db/vehicles';
 
 export async function POST(req: NextRequest) {
   const { email, password, firstName, lastName, postcode } = await req.json();
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+  }
+
+  if (!postcode || postcode.trim().length < 5) {
+    return NextResponse.json({ error: 'Postcode is required' }, { status: 400 });
+  }
+
+  const valid = await postcodeExists(postcode.trim());
+  if (!valid) {
+    return NextResponse.json({ error: 'Postcode not found — please enter a valid UK postcode' }, { status: 400 });
   }
 
   const passwordHash = await bcrypt.hash(password, 12);

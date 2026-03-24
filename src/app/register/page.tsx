@@ -50,8 +50,9 @@ export default function RegisterPage() {
             className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Postcode</label>
-          <input type="text" value={postcode} onChange={e => setPostcode(e.target.value.toUpperCase())}
+          <label className="block text-sm font-medium mb-1">Postcode <span className="text-red-500">*</span></label>
+          <input type="text" required value={postcode} onChange={e => setPostcode(e.target.value.toUpperCase())}
+            placeholder="e.g. M8 8EP"
             className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
         </div>
         <div>

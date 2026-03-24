@@ -1,5 +1,5 @@
 import db from './index';
-import { vehicles } from './schema';
+import { vehicles, postcodes } from './schema';
 import { Vehicle, NewVehicle } from './schema';
 import { asc, desc, count, and, inArray, eq, SQL, sql as rawSql } from 'drizzle-orm';
 
@@ -119,4 +119,13 @@ export async function getModelsByMakes(makes: string[]): Promise<string[]> {
     .where(makes.length > 0 ? inArray(vehicles.make, makes) : undefined)
     .orderBy(asc(vehicles.model));
   return rows.map((r) => r.model);
+}
+
+export async function postcodeExists(pc: string): Promise<boolean> {
+  const rows = await db
+    .select({ postcode: postcodes.postcode })
+    .from(postcodes)
+    .where(eq(postcodes.postcode, normalisePostcode(pc)))
+    .limit(1);
+  return rows.length > 0;
 }

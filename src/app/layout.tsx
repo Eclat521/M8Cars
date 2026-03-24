@@ -61,7 +61,7 @@ export default function RootLayout({
                 fallback={
                   <a
                     href="/data-list"
-                    className="font-medium hover:underline"
+                    className="ml-8 font-medium hover:underline"
                     style={{
                       fontFamily:
                         'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
@@ -73,7 +73,7 @@ export default function RootLayout({
                 }
               >
                 <SearchVehiclesLink
-                  className="font-medium hover:underline"
+                  className="ml-8 font-medium hover:underline"
                   style={{
                     fontFamily:
                       'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
@@ -97,7 +97,7 @@ export default function RootLayout({
                 </span>
                 <p className="text-xs text-gray-500">
                   &copy; {new Date().getFullYear()} M8 Cars. All rights
-                  reserved. V1.1
+                  reserved. V1.3
                 </p>
                 <nav className="flex gap-4 text-xs">
                   <Link

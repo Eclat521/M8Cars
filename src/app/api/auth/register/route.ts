@@ -25,6 +25,6 @@ export async function POST(req: NextRequest) {
     res.cookies.set(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 7 });
     return res;
   } catch {
-    return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
+    return NextResponse.json({ error: 'This Email is already in use' }, { status: 409 });
   }
 }

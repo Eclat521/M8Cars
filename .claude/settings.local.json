@@ -20,7 +20,8 @@
       "WebFetch(domain:opendata.arcgis.com)",
       "WebFetch(domain:hub.arcgis.com)",
       "Bash(npx drizzle-kit:*)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "WebFetch(domain:www.pexels.com)"
     ]
   }
 }

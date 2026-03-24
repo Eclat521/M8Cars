@@ -92,10 +92,12 @@ export default function VehicleList({ initialData }: VehicleListProps) {
       return;
     }
     let cancelled = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
     setFiltering(true);
     const url = buildUrl(1, filters, userPostcode);
     console.log('[VehicleList] fetching:', url);
-    fetch(url)
+    fetch(url, { signal: controller.signal })
       .then((r) => {
         console.log('[VehicleList] response status:', r.status);
         if (!r.ok) throw new Error(`API error ${r.status}`);
@@ -118,10 +120,11 @@ export default function VehicleList({ initialData }: VehicleListProps) {
         }
       })
       .finally(() => {
+        clearTimeout(timeout);
         console.log('[VehicleList] finally, cancelled:', cancelled);
         if (!cancelled) setFiltering(false);
       });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; controller.abort(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVehiclesPaged, createVehicle, SortOption } from '@/db/vehicles';
 
+export const maxDuration = 30;
+
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
   const page = parseInt(params.get('page') ?? '1', 10);

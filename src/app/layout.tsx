@@ -23,8 +23,6 @@ const orbitron = Orbitron({
   subsets: ["latin"],
 });
 
-
-
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -48,7 +46,10 @@ export default function RootLayout({
         <AuthProvider>
           <header className="flex items-center justify-between px-6 py-4 border-b bg-white shadow-sm">
             <div className="flex items-end gap-6">
-              <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <Link
+                href="/"
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
                 <h1
                   className="text-4xl font-bold tracking-tight leading-none text-red-600 underline"
                   style={{ fontFamily: "var(--font-orbitron)" }}
@@ -56,8 +57,29 @@ export default function RootLayout({
                   M8 Cars
                 </h1>
               </Link>
-              <Suspense fallback={<a href="/data-list" className="font-medium hover:underline" style={{ fontFamily: 'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif', fontSize: '14px' }}>Used Cars</a>}>
-                <SearchVehiclesLink className="font-medium hover:underline" style={{ fontFamily: 'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif', fontSize: '14px' }} />
+              <Suspense
+                fallback={
+                  <a
+                    href="/data-list"
+                    className="font-medium hover:underline"
+                    style={{
+                      fontFamily:
+                        'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+                      fontSize: "14px",
+                    }}
+                  >
+                    Used Cars
+                  </a>
+                }
+              >
+                <SearchVehiclesLink
+                  className="font-medium hover:underline"
+                  style={{
+                    fontFamily:
+                      'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+                    fontSize: "14px",
+                  }}
+                />
               </Suspense>
               <AddVehicleLink />
             </div>
@@ -73,10 +95,23 @@ export default function RootLayout({
                 >
                   M8 Cars
                 </span>
-                <p className="text-xs text-gray-500">&copy; {new Date().getFullYear()} M8 Cars. All rights reserved.</p>
+                <p className="text-xs text-gray-500">
+                  &copy; {new Date().getFullYear()} M8 Cars. All rights
+                  reserved. V1.1
+                </p>
                 <nav className="flex gap-4 text-xs">
-                  <Link href="/data-list" className="hover:text-white transition-colors">Browse Cars</Link>
-                  <Link href="/new-vehicle" className="hover:text-white transition-colors">Sell Your Car</Link>
+                  <Link
+                    href="/data-list"
+                    className="hover:text-white transition-colors"
+                  >
+                    Browse Cars
+                  </Link>
+                  <Link
+                    href="/new-vehicle"
+                    className="hover:text-white transition-colors"
+                  >
+                    Sell Your Car
+                  </Link>
                 </nav>
               </div>
             </footer>

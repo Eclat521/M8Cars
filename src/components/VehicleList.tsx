@@ -93,19 +93,24 @@ export default function VehicleList({ initialData }: VehicleListProps) {
     }
     let cancelled = false;
     setFiltering(true);
-    fetch(buildUrl(1, filters, userPostcode))
+    const url = buildUrl(1, filters, userPostcode);
+    console.log('[VehicleList] fetching:', url);
+    fetch(url)
       .then((r) => {
+        console.log('[VehicleList] response status:', r.status);
         if (!r.ok) throw new Error(`API error ${r.status}`);
         return r.json();
       })
       .then((json: PagedResponse) => {
+        console.log('[VehicleList] json:', json);
         if (cancelled) return;
         setVehicles(json.data ?? []);
         setTotal(json.total ?? 0);
         setPage(1);
         setHasMore(json.hasMore ?? false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('[VehicleList] fetch error:', err);
         if (!cancelled) {
           setVehicles([]);
           setTotal(0);
@@ -113,6 +118,7 @@ export default function VehicleList({ initialData }: VehicleListProps) {
         }
       })
       .finally(() => {
+        console.log('[VehicleList] finally, cancelled:', cancelled);
         if (!cancelled) setFiltering(false);
       });
     return () => { cancelled = true; };

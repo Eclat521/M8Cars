@@ -97,7 +97,7 @@ export default function RootLayout({
                 </span>
                 <p className="text-xs text-gray-500">
                   &copy; {new Date().getFullYear()} M8 Cars. All rights
-                  reserved. V1.3
+                  reserved. V1.4
                 </p>
                 <nav className="flex gap-4 text-xs">
                   <Link

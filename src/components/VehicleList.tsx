@@ -94,13 +94,23 @@ export default function VehicleList({ initialData }: VehicleListProps) {
     let cancelled = false;
     setFiltering(true);
     fetch(buildUrl(1, filters, userPostcode))
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`API error ${r.status}`);
+        return r.json();
+      })
       .then((json: PagedResponse) => {
         if (cancelled) return;
-        setVehicles(json.data);
-        setTotal(json.total);
+        setVehicles(json.data ?? []);
+        setTotal(json.total ?? 0);
         setPage(1);
-        setHasMore(json.hasMore);
+        setHasMore(json.hasMore ?? false);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setVehicles([]);
+          setTotal(0);
+          setHasMore(false);
+        }
       })
       .finally(() => {
         if (!cancelled) setFiltering(false);

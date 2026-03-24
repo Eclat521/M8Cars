@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Geist, Geist_Mono, Orbitron, Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import NavBar from "@/components/NavBar";
+import AddVehicleLink from "@/components/AddVehicleLink";
 import { Suspense } from "react";
 import SearchVehiclesLink from "@/components/SearchVehiclesLink";
 import "./globals.css";
@@ -46,31 +47,21 @@ export default function RootLayout({
       >
         <AuthProvider>
           <header className="flex items-center justify-between px-6 py-4 border-b bg-white shadow-sm">
-            <Link
-              href="/"
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-            >
-              <h1
-                className="text-4xl font-bold tracking-tight leading-none text-red-600 underline"
-                style={{ fontFamily: "var(--font-orbitron)" }}
-              >
-                M8 Cars              </h1>
-            </Link>
-            <div className="flex items-center gap-3">
-              <Suspense
-                fallback={
-                  <a
-                    href="/data-list"
-                    className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity"
-                  >
-                    Search Vehicles
-                  </a>
-                }
-              >
-                <SearchVehiclesLink className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity" />
+            <div className="flex items-end gap-6">
+              <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <h1
+                  className="text-4xl font-bold tracking-tight leading-none text-red-600 underline"
+                  style={{ fontFamily: "var(--font-orbitron)" }}
+                >
+                  M8 Cars
+                </h1>
+              </Link>
+              <Suspense fallback={<a href="/data-list" className="font-medium hover:underline" style={{ fontFamily: 'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif', fontSize: '14px' }}>Used Cars</a>}>
+                <SearchVehiclesLink className="font-medium hover:underline" style={{ fontFamily: 'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif', fontSize: '14px' }} />
               </Suspense>
-              <NavBar />
+              <AddVehicleLink />
             </div>
+            <NavBar />
           </header>
           <div className="min-h-[calc(100vh-73px)] flex flex-col">
             <main className="flex-1">{children}</main>

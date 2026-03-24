@@ -5,6 +5,13 @@ import { asc, desc, count, and, inArray, eq, SQL, sql as rawSql } from 'drizzle-
 
 const LIMIT = 20;
 
+/** Normalises a postcode to the format used in the postcodes table: uppercase with a space before the last 3 chars (e.g. "EH47 8RX"). */
+function normalisePostcode(pc: string): string {
+  const s = pc.toUpperCase().replace(/\s+/g, "");
+  return s.slice(0, -3) + " " + s.slice(-3);
+}
+
+
 export type SortOption = 'price_asc' | 'price_desc' | 'year_asc' | 'year_desc' | 'mileage_asc' | 'mileage_desc' | 'distance_asc';
 
 export interface VehicleQuery {
@@ -33,7 +40,7 @@ export async function getVehiclesPaged(query: VehicleQuery): Promise<{ data: Veh
     const metres = distance * 1609.344;
     conditions.push(rawSql`${vehicles.postcode} IN (
       SELECT p2.postcode FROM postcodes p1, postcodes p2
-      WHERE p1.postcode = ${postcode.toUpperCase()}
+      WHERE p1.postcode = ${normalisePostcode(postcode)}
         AND ST_DWithin(p1.location, p2.location, ${metres})
     )`);
   }
@@ -53,7 +60,7 @@ export async function getVehiclesPaged(query: VehicleQuery): Promise<{ data: Veh
           return rawSql`(
             SELECT ST_Distance(p1.location, p2.location)
             FROM postcodes p1, postcodes p2
-            WHERE p1.postcode = ${postcode.toUpperCase()}
+            WHERE p1.postcode = ${normalisePostcode(postcode)}
               AND p2.postcode = ${vehicles.postcode}
             LIMIT 1
           ) ASC NULLS LAST`;
@@ -72,7 +79,8 @@ export async function getVehiclesPaged(query: VehicleQuery): Promise<{ data: Veh
 }
 
 export async function createVehicle(data: Omit<NewVehicle, 'id'>): Promise<Vehicle> {
-  const [vehicle] = await db.insert(vehicles).values(data).returning();
+  const postcode = normalisePostcode(data.postcode);
+  const [vehicle] = await db.insert(vehicles).values({ ...data, postcode }).returning();
   return vehicle;
 }
 
@@ -85,8 +93,8 @@ export async function getDistanceMiles(fromPostcode: string, toPostcode: string)
   const rows = await db.execute(rawSql`
     SELECT ST_Distance(p1.location, p2.location) / 1609.344 AS miles
     FROM postcodes p1, postcodes p2
-    WHERE p1.postcode = ${fromPostcode.toUpperCase()}
-      AND p2.postcode = ${toPostcode.toUpperCase()}
+    WHERE p1.postcode = ${normalisePostcode(fromPostcode)}
+      AND p2.postcode = ${normalisePostcode(toPostcode)}
     LIMIT 1
   `);
   const row = rows.rows?.[0] as { miles: number } | undefined;

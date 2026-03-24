@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+
 import UserNav from './UserNav';
 
 export default function NavBar() {
@@ -22,15 +23,5 @@ export default function NavBar() {
     );
   }
 
-  return (
-    <>
-      <Link
-        href="/new-vehicle"
-        className="px-4 py-2 mr-12 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity"
-      >
-        Add New Vehicle
-      </Link>
-      <UserNav />
-    </>
-  );
+  return <UserNav />;
 }

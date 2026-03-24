@@ -4,6 +4,8 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
+import { Camera } from "lucide-react";
+import { FileText, ShieldPlus, ClipboardList } from "lucide-react";
 
 const bodyTypes = ["Hatchback", "Saloon", "SUV", "Estate", "Coupe"];
 const fuelTypes = ["Diesel", "Electric", "Hybrid", "Petrol"];
@@ -197,22 +199,18 @@ export default function NewVehiclePage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold">
-        <span className="bg-gray-600 text-white rounded-md px-2 py-0.5">
-          Add New Vehicle
-        </span>
+      <h1 className="text-3xl font-bold flex items-center gap-3 pb-6">
+        <ShieldPlus className="w-8 h-8" /> Add New Advert
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Registration */}
         <div className="pt-6">
-          <label className="block text-sm font-medium mb-1 bg-gray-700 text-white rounded px-2 py-0.5 inline-block">
-            Registration *
-          </label>
           <div className="flex items-center gap-3">
+            <label className="text-xl font-semibold whitespace-nowrap">Registration Number *</label>
             <input
               required
-              className="border-2 border-black rounded px-4 py-2 text-2xl font-bold tracking-widest uppercase bg-yellow-300 text-black placeholder-black/30 focus:outline-none focus:ring-2 focus:ring-yellow-500 w-48 text-center font-['Charles_Wright','Arial_Narrow',sans-serif]"
+              className="border-2 border-black rounded-xl px-4 py-2 text-2xl font-bold tracking-widest uppercase bg-yellow-300 text-black placeholder-black/30 focus:outline-none focus:ring-2 focus:ring-yellow-500 w-48 text-center font-['Charles_Wright','Arial_Narrow',sans-serif]"
               value={form.registration}
               onChange={(e) =>
                 setField("registration", e.target.value.toUpperCase())
@@ -236,12 +234,10 @@ export default function NewVehiclePage() {
         {/* Images */}
         <Card className="shadow-lg">
           <CardContent className="pt-6 space-y-4">
-            <h2 className="text-base font-semibold">
-              <span className="bg-gray-600 text-white rounded-md px-2 py-0.5">
-                33Photos
-              </span>
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <Camera className="w-7 h-7" /> Add some photos
             </h2>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {images.map((slot, i) => (
                 <ImageUploadSlot
                   key={i}
@@ -258,10 +254,8 @@ export default function NewVehiclePage() {
         {/* Core details */}
         <Card className="shadow-lg">
           <CardContent className="pt-6 space-y-4">
-            <h2 className="text-base font-semibold">
-              <span className="bg-gray-600 text-white rounded-md px-2 py-0.5">
-                Vehicle Details
-              </span>
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <FileText className="w-7 h-7" /> Vehicle Details
             </h2>
 
             <div className="grid grid-cols-2 gap-x-10 gap-y-4">
@@ -444,12 +438,10 @@ export default function NewVehiclePage() {
         </Card>
 
         {/* Features */}
-        <Card className="shadow-lg">
-          <CardContent className="pt-6 space-y-4">
-            <h2 className="text-base font-semibold">
-              <span className="bg-gray-600 text-white rounded-md px-2 py-0.5">
-                Features
-              </span>
+        <Card className="shadow-lg mb-6">
+          <CardContent className="pt-3 space-y-4">
+            <h2 className="text-xl font-semibold flex items-center gap-2 pb-2">
+              <ClipboardList className="w-7 h-7" /> Features
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {(
@@ -481,7 +473,7 @@ export default function NewVehiclePage() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-4">
           <button
             type="submit"
             disabled={submitting}

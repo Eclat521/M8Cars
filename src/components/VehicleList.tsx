@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, startTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -80,7 +80,9 @@ export default function VehicleList({ initialData }: VehicleListProps) {
     const params = filtersToSearchParams(next);
     if (userPostcode && (next.distance || next.sort === "distance_asc")) params.set("postcode", userPostcode);
     sessionStorage.setItem("vehicleFilters", params.toString());
-    router.replace(`?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.replace(`?${params.toString()}`, { scroll: false });
+    });
   }
 
   // Reset and re-fetch from page 1 when filters change (skip on mount — preserve SSR HTML)

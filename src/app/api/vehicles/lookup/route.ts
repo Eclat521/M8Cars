@@ -22,5 +22,21 @@ export async function GET(req: NextRequest) {
 
   const data = await res.json();
   console.log('[checkcardetails] response:', JSON.stringify(data, null, 2));
-  return NextResponse.json(data);
+
+  // Normalise nested checkcardetails response into a flat structure for the frontend
+  const normalized = {
+    make: data.ModelData?.Make ?? null,
+    model: data.ModelData?.Range ?? null,
+    colour: data.ColourDetails?.CurrentColour
+      ? data.ColourDetails.CurrentColour.charAt(0).toUpperCase() + data.ColourDetails.CurrentColour.slice(1).toLowerCase()
+      : null,
+    yearOfManufacture: data.VehicleIdentification?.YearOfManufacture ?? null,
+    fuelType: data.ModelData?.FuelType ?? null,
+    engineCapacity: data.DvlaTechnicalDetails?.EngineCapacityCc ?? null,
+    doors: data.BodyDetails?.NumberOfDoors ?? null,
+    bodyType: data.BodyDetails?.BodyStyle ?? null,
+    gearbox: data.Transmission?.TransmissionType ?? null,
+  };
+
+  return NextResponse.json(normalized);
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Search } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { SortOption } from "@/db/vehicles";
 
@@ -67,19 +68,19 @@ export default function VehicleFilters({ filters, onChange, total }: VehicleFilt
   }
 
   const selectClass =
-    "border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400";
+    "border border-gray-300 rounded-md px-3 py-2 text-base bg-white focus:outline-none focus:ring-2 focus:ring-gray-400";
 
   return (
     <div className="sticky top-0 z-10 bg-white border-b py-4 px-6">
       <div className="bg-card rounded-xl border border-border shadow-md px-5 py-4">
-        <h1 className="text-2xl font-semibold mb-3"><span className="bg-gray-600 text-white rounded-md px-2 py-0.5">Find your perfect car...</span></h1>
-        <div className="flex flex-wrap items-start gap-3">
+        <h1 className="text-base font-semibold mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-inter)" }}><Search className="w-4 h-4" /> Find your perfect car...</h1>
+        <div className="flex flex-wrap items-start gap-3" style={{ fontFamily: "var(--font-inter)" }}>
 
           <div ref={makeRef} className="relative">
             <button
               type="button"
               onClick={() => setMakeOpen((o) => !o)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 flex items-center gap-2"
+              className="border border-gray-300 rounded-md px-3 py-2 text-base bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 flex items-center gap-2"
             >
               {filters.make.length === 0 ? "All Makes" : `${filters.make.length} make${filters.make.length > 1 ? "s" : ""} selected`}
               <span className="text-gray-400">▾</span>
@@ -87,7 +88,7 @@ export default function VehicleFilters({ filters, onChange, total }: VehicleFilt
             {makeOpen && (
               <div className="absolute top-full left-0 mt-1 z-20 bg-white border border-gray-300 rounded-md shadow-md py-1 min-w-40 max-h-60 overflow-y-auto">
                 {makes.map((m) => (
-                  <label key={m} className="flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50">
+                  <label key={m} className="flex items-center gap-2 px-3 py-1.5 text-base cursor-pointer hover:bg-gray-50">
                     <input
                       type="checkbox"
                       checked={filters.make.includes(m)}

@@ -21,7 +21,7 @@ export default function UserNav() {
 
   async function handleLogout() {
     await logout();
-    router.push('/');
+    router.push('/data-list');
     setOpen(false);
   }
 

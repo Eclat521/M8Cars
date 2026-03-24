@@ -27,7 +27,7 @@ function LoginForm() {
     });
     if (res.ok) {
       await refresh();
-      router.push('/');
+      router.push('/data-list');
     } else {
       const data = await res.json();
       setError(data.error ?? 'Login failed');

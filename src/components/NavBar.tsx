@@ -12,14 +12,14 @@ export default function NavBar() {
 
   if (!user) {
     return (
-      <>
-        <Link href="/login" className="px-4 py-2 ml-8 text-sm font-medium border rounded-md hover:bg-accent transition-colors">
+      <div className="flex items-center gap-3 ml-auto">
+        <Link href="/login" className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-accent transition-colors">
           Sign In
         </Link>
         <Link href="/register" className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity">
           Sign Up
         </Link>
-      </>
+      </div>
     );
   }
 

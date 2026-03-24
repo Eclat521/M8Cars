@@ -229,7 +229,7 @@ export default function NewVehiclePage() {
               onChange={(e) =>
                 setField("registration", e.target.value.toUpperCase())
               }
-              placeholder="AB12 CDE"
+              placeholder="SC10 XAE"
             />
             <button
               type="button"

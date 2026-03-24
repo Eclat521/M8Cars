@@ -70,7 +70,7 @@ export default function NewVehiclePage() {
     const preview = URL.createObjectURL(file);
     setImages((prev) => {
       const next = [...prev] as typeof prev;
-      next[index] = { file, preview, uploading: true, url: null };
+      next[index] = { file, preview, uploading: true, url: null, error: null };
       return next;
     });
 

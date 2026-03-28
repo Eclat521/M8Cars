@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Camera } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { FileText, ShieldPlus, ClipboardList } from "lucide-react";
 
 const bodyTypes = ["Hatchback", "Saloon", "SUV", "Estate", "Coupe"];
@@ -18,6 +18,8 @@ interface ImageSlot {
   url: string | null;
   error: string | null;
 }
+
+const IMAGE_COUNT = 20;
 
 const emptySlot = (): ImageSlot => ({
   file: null,
@@ -33,9 +35,10 @@ export default function NewVehiclePage() {
   const [error, setError] = useState<string | null>(null);
   const [lookingUp, setLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
-  const [images, setImages] = useState<
-    [ImageSlot, ImageSlot, ImageSlot, ImageSlot]
-  >([emptySlot(), emptySlot(), emptySlot(), emptySlot()]);
+  const [images, setImages] = useState<ImageSlot[]>(
+    Array.from({ length: IMAGE_COUNT }, emptySlot)
+  );
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
   const [form, setForm] = useState({
     make: "",
@@ -69,7 +72,7 @@ export default function NewVehiclePage() {
     if (!file) return;
     const preview = URL.createObjectURL(file);
     setImages((prev) => {
-      const next = [...prev] as typeof prev;
+      const next = [...prev];
       next[index] = { file, preview, uploading: true, url: null, error: null };
       return next;
     });
@@ -84,13 +87,13 @@ export default function NewVehiclePage() {
       const json = await res.json();
       const uploadError = !res.ok || !json.url ? (json.error ?? "Upload failed") : null;
       setImages((prev) => {
-        const next = [...prev] as typeof prev;
+        const next = [...prev];
         next[index] = { file, preview, uploading: false, url: json.url ?? null, error: uploadError };
         return next;
       });
-    } catch (err) {
+    } catch {
       setImages((prev) => {
-        const next = [...prev] as typeof prev;
+        const next = [...prev];
         next[index] = { file, preview, uploading: false, url: null, error: "Upload failed" };
         return next;
       });
@@ -99,11 +102,19 @@ export default function NewVehiclePage() {
 
   function removeImage(index: number) {
     setImages((prev) => {
-      const next = [...prev] as typeof prev;
+      const next = [...prev];
       next[index] = emptySlot();
       return next;
     });
   }
+
+  const prevSlide = useCallback(() => {
+    setCarouselIndex((i) => Math.max(0, i - 4));
+  }, []);
+
+  const nextSlide = useCallback(() => {
+    setCarouselIndex((i) => Math.min(IMAGE_COUNT - 4, i + 4));
+  }, []);
 
   async function handleLookup() {
     if (!form.registration) return;
@@ -156,7 +167,7 @@ export default function NewVehiclePage() {
       return;
     }
 
-    const [img1, img2, img3, img4] = images.map((img) => img.url);
+    const imgUrls = images.map((img) => img.url ?? null);
 
     setSubmitting(true);
     try {
@@ -185,10 +196,26 @@ export default function NewVehiclePage() {
           leatherSeats: form.leatherSeats,
           powerWindows: form.powerWindows,
           navigationSystem: form.navigationSystem,
-          img1: img1 ?? null,
-          img2: img2 ?? null,
-          img3: img3 ?? null,
-          img4: img4 ?? null,
+          img1: imgUrls[0],
+          img2: imgUrls[1],
+          img3: imgUrls[2],
+          img4: imgUrls[3],
+          img5: imgUrls[4],
+          img6: imgUrls[5],
+          img7: imgUrls[6],
+          img8: imgUrls[7],
+          img9: imgUrls[8],
+          img10: imgUrls[9],
+          img11: imgUrls[10],
+          img12: imgUrls[11],
+          img13: imgUrls[12],
+          img14: imgUrls[13],
+          img15: imgUrls[14],
+          img16: imgUrls[15],
+          img17: imgUrls[16],
+          img18: imgUrls[17],
+          img19: imgUrls[18],
+          img20: imgUrls[19],
         }),
       });
 
@@ -253,17 +280,66 @@ export default function NewVehiclePage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Camera className="w-7 h-7" /> Add some photos
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {images.map((slot, i) => (
-                <ImageUploadSlot
-                  key={i}
-                  slot={slot}
-                  label={`Photo ${i + 1}`}
-                  onChange={(file) => handleImageChange(i, file)}
-                  onRemove={() => removeImage(i)}
+
+            {/* Carousel — 4 slots per page */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={prevSlide}
+                disabled={carouselIndex === 0}
+                className="flex-shrink-0 p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors disabled:opacity-30"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <div className="flex-1 grid grid-cols-4 gap-3">
+                {images.slice(carouselIndex, carouselIndex + 4).map((slot, offset) => {
+                  const i = carouselIndex + offset;
+                  return (
+                    <ImageUploadSlot
+                      key={i}
+                      slot={slot}
+                      label={`Photo ${i + 1}`}
+                      onChange={(file) => handleImageChange(i, file)}
+                      onRemove={() => removeImage(i)}
+                    />
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={nextSlide}
+                disabled={carouselIndex + 4 >= IMAGE_COUNT}
+                className="flex-shrink-0 p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors disabled:opacity-30"
+                aria-label="Next page"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Page dots */}
+            <div className="flex justify-center gap-2">
+              {Array.from({ length: IMAGE_COUNT / 4 }).map((_, page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setCarouselIndex(page * 4)}
+                  aria-label={`Photos ${page * 4 + 1}–${page * 4 + 4}`}
+                  className={[
+                    "w-2.5 h-2.5 rounded-full transition-colors border",
+                    carouselIndex === page * 4
+                      ? "bg-gray-800 border-gray-800"
+                      : "bg-gray-200 border-gray-300",
+                  ].join(" ")}
                 />
               ))}
             </div>
+
+            <p className="text-xs text-gray-500 text-center">
+              {images.filter((s) => s.url).length} of {IMAGE_COUNT} photos added
+            </p>
           </CardContent>
         </Card>
 
@@ -528,7 +604,7 @@ function ImageUploadSlot({
     <div className="flex flex-col gap-2">
       <span className="text-sm font-medium">{label}</span>
       <div
-        className="relative h-36 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 cursor-pointer hover:border-gray-400 transition-colors"
+        className="relative aspect-square border-2 border-dashed border-gray-300 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 cursor-pointer hover:border-gray-400 transition-colors"
         onClick={() => !slot.preview && inputRef.current?.click()}
       >
         {slot.preview ? (

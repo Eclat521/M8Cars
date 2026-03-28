@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Geist, Geist_Mono, Orbitron, Inter } from "next/font/google";
+import Image from "next/image";
+import { Geist, Geist_Mono, Exo_2, Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import NavBar from "@/components/NavBar";
 import AddVehicleLink from "@/components/AddVehicleLink";
+import HamburgerMenu from "@/components/HamburgerMenu";
 import { Suspense } from "react";
 import SearchVehiclesLink from "@/components/SearchVehiclesLink";
 import "./globals.css";
@@ -18,7 +20,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const orbitron = Orbitron({
+const exo2 = Exo_2({
   variable: "--font-orbitron",
   subsets: ["latin"],
 });
@@ -41,62 +43,94 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} ${inter.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${exo2.variable} ${inter.variable} antialiased`}
       >
         <AuthProvider>
-          <header className="flex items-center justify-between px-6 py-4 border-b bg-white shadow-sm">
+          <header className="flex items-center justify-between px-6 pt-4 pb-1 border-b bg-white shadow-sm">
             <div className="flex items-end gap-6">
               <Link
                 href="/"
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity"
               >
-                <h1
-                  className="text-4xl font-bold tracking-tight leading-none text-red-600 underline"
-                  style={{ fontFamily: "var(--font-orbitron)" }}
-                >
-                  M8 Cars
-                </h1>
+                <Image
+                  src="/hi.svg"
+                  alt="HiCarMarket"
+                  width={256}
+                  height={77}
+                  priority
+                  className="w-32 sm:w-64"
+                />
               </Link>
-              <Suspense
-                fallback={
-                  <a
-                    href="/data-list"
-                    className="ml-8 font-medium hover:underline"
+
+              {/* Nav links — hidden on small screens */}
+              <div className="hidden sm:flex items-end gap-6">
+                <Suspense
+                  fallback={
+                    <a
+                      href="/data-list"
+                      className="ml-8 font-medium hover:underline pb-1"
+                      style={{
+                        fontFamily:
+                          'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+                        fontSize: "14px",
+                      }}
+                    >
+                      Used Cars
+                    </a>
+                  }
+                >
+                  <SearchVehiclesLink
+                    className="ml-8 font-medium hover:underline pb-1"
                     style={{
                       fontFamily:
                         'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
                       fontSize: "14px",
                     }}
-                  >
-                    Used Cars
-                  </a>
-                }
-              >
-                <SearchVehiclesLink
-                  className="ml-8 font-medium hover:underline"
+                  />
+                </Suspense>
+                <AddVehicleLink />
+                <a
+                  href="#"
+                  className="font-medium hover:underline pb-1"
                   style={{
                     fontFamily:
                       'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
                     fontSize: "14px",
                   }}
-                />
-              </Suspense>
-              <AddVehicleLink />
+                >
+                  Get a value for your car
+                </a>
+                <a
+                  href="#"
+                  className="font-medium hover:underline pb-1"
+                  style={{
+                    fontFamily:
+                      'ATVFabriga, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+                    fontSize: "14px",
+                  }}
+                >
+                  See a car&apos;s history
+                </a>
+              </div>
+
             </div>
-            <NavBar />
+            <div className="flex items-center gap-2">
+              <NavBar />
+              <HamburgerMenu />
+            </div>
           </header>
           <div className="min-h-[calc(100vh-73px)] flex flex-col">
             <main className="flex-1">{children}</main>
-            <footer className="border-t bg-gray-900 text-gray-400 text-sm">
+            <footer className="mt-16 border-t bg-gray-900 text-gray-400 text-sm">
               <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <span
                   className="text-xl font-bold text-red-500"
                   style={{ fontFamily: "var(--font-orbitron)" }}
                 >
-                  M8 Cars
+                  HiCarMarket
                 </span>
                 <p className="text-xs text-gray-500">
-                  &copy; {new Date().getFullYear()} M8 Cars. All rights
+                  &copy; {new Date().getFullYear()} HiCarMarket. All rights
                   reserved. V1.4
                 </p>
                 <nav className="flex gap-4 text-xs">

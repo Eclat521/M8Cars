@@ -7,7 +7,7 @@ interface Props {
 
 export default function BackButton({ fallbackHref, label }: Props) {
   return (
-    <Link href={fallbackHref} className="text-sm text-muted-foreground hover:underline">
+    <Link href={fallbackHref} className="text-base font-bold text-muted-foreground hover:underline py-4 inline-block">
       {label}
     </Link>
   );

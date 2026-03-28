@@ -1,7 +1,7 @@
 import db from './index';
 import { vehicles, postcodes } from './schema';
 import { Vehicle, NewVehicle } from './schema';
-import { asc, desc, count, and, inArray, eq, SQL, sql as rawSql } from 'drizzle-orm';
+import { asc, desc, count, and, inArray, eq, lte, SQL, sql as rawSql } from 'drizzle-orm';
 
 const LIMIT = 20;
 
@@ -30,10 +30,11 @@ export interface VehicleQuery {
   sort?: SortOption;
   distance?: number;
   postcode?: string;
+  mileageMax?: number;
 }
 
 export async function getVehiclesPaged(query: VehicleQuery): Promise<{ data: Vehicle[]; total: number; hasMore: boolean }> {
-  const { page, makes, model, bodyType, fuelType, gearbox, sort, distance, postcode } = query;
+  const { page, makes, model, bodyType, fuelType, gearbox, sort, distance, postcode, mileageMax } = query;
   const offset = (page - 1) * LIMIT;
 
   const conditions: SQL[] = [];
@@ -42,6 +43,7 @@ export async function getVehiclesPaged(query: VehicleQuery): Promise<{ data: Veh
   if (bodyType) conditions.push(eq(vehicles.bodyType, bodyType));
   if (fuelType) conditions.push(eq(vehicles.fuelType, fuelType));
   if (gearbox) conditions.push(eq(vehicles.gearbox, gearbox));
+  if (mileageMax != null) conditions.push(lte(vehicles.mileage, mileageMax));
   if (postcode && isValidPostcode(postcode) && distance) {
     const metres = distance * 1609.344;
     conditions.push(rawSql`${vehicles.postcode} IN (

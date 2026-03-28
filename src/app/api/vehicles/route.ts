@@ -16,10 +16,11 @@ export async function GET(req: NextRequest) {
   const distanceParam = params.get('distance');
   const distance = distanceParam ? parseFloat(distanceParam) : undefined;
   const postcode = params.get('postcode') ?? undefined;
+  const mileageMax = params.get('mileageMax') ? parseInt(params.get('mileageMax')!) : undefined;
 
-  console.log('[vehicles GET]', { page, makes, model, bodyType, fuelType, gearbox, sort, distance, postcode });
+  console.log('[vehicles GET]', { page, makes, model, bodyType, fuelType, gearbox, sort, distance, postcode, mileageMax });
   try {
-    const result = await getVehiclesPaged({ page, makes, model, bodyType, fuelType, gearbox, sort, distance, postcode });
+    const result = await getVehiclesPaged({ page, makes, model, bodyType, fuelType, gearbox, sort, distance, postcode, mileageMax });
     console.log('[vehicles GET] success, total:', result.total);
     return NextResponse.json(result);
   } catch (err) {

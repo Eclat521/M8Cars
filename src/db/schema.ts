@@ -35,74 +35,12 @@ const geographyPoint = customType<{ data: string }>({
 });
 
 
-export const exercises = pgTable('exercises', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  name: text('name').notNull().unique(),
-  category: text('category'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-export const workouts = pgTable('workouts', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: text('user_id').notNull(),
-  name: text('name'),
-  startedAt: timestamp('started_at').defaultNow().notNull(),
-  completedAt: timestamp('completed_at'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-export const workoutExercises = pgTable('workout_exercises', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  workoutId: uuid('workout_id')
-    .notNull()
-    .references(() => workouts.id, { onDelete: 'cascade' }),
-  exerciseId: uuid('exercise_id')
-    .notNull()
-    .references(() => exercises.id),
-  order: integer('order').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-export const sets = pgTable('sets', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  workoutExerciseId: uuid('workout_exercise_id')
-    .notNull()
-    .references(() => workoutExercises.id, { onDelete: 'cascade' }),
-  setNumber: integer('set_number').notNull(),
-  reps: integer('reps'),
-  weight: numeric('weight', { precision: 6, scale: 2 }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-export type Exercise = typeof exercises.$inferSelect;
-export type NewExercise = typeof exercises.$inferInsert;
-
-export type Workout = typeof workouts.$inferSelect;
-export type NewWorkout = typeof workouts.$inferInsert;
-
-export type WorkoutExercise = typeof workoutExercises.$inferSelect;
-export type NewWorkoutExercise = typeof workoutExercises.$inferInsert;
-
-export type Set = typeof sets.$inferSelect;
-export type NewSet = typeof sets.$inferInsert;
-
-export const notes = pgTable('notes', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: text('user_id').notNull(),
-  note: varchar('note', { length: 255 }).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-export type Note = typeof notes.$inferSelect;
-export type NewNote = typeof notes.$inferInsert;
 
 export const vehicles = pgTable('vehicles', {
   id: serial('id').primaryKey(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
   make: varchar('make', { length: 100 }).notNull(),
   model: varchar('model', { length: 250 }).notNull(),
-  variant: varchar('variant', { length: 250 }),
   registration: varchar('registration', { length: 25 }).notNull(),
   bodyType: varchar('body_type', { length: 50 }),
   fuelType: varchar('fuel_type', { length: 50 }).notNull(),
@@ -125,6 +63,23 @@ export const vehicles = pgTable('vehicles', {
   img1: varchar('img_1', { length: 250 }),
   img2: varchar('img_2', { length: 250 }),
   img3: varchar('img_3', { length: 250 }),
+  img4: varchar('img_4', { length: 250 }),
+  img5: varchar('img_5', { length: 250 }),
+  img6: varchar('img_6', { length: 250 }),
+  img7: varchar('img_7', { length: 250 }),
+  img8: varchar('img_8', { length: 250 }),
+  img9: varchar('img_9', { length: 250 }),
+  img10: varchar('img_10', { length: 250 }),
+  img11: varchar('img_11', { length: 250 }),
+  img12: varchar('img_12', { length: 250 }),
+  img13: varchar('img_13', { length: 250 }),
+  img14: varchar('img_14', { length: 250 }),
+  img15: varchar('img_15', { length: 250 }),
+  img16: varchar('img_16', { length: 250 }),
+  img17: varchar('img_17', { length: 250 }),
+  img18: varchar('img_18', { length: 250 }),
+  img19: varchar('img_19', { length: 250 }),
+  img20: varchar('img_20', { length: 250 }),
 });
 
 export type Vehicle = typeof vehicles.$inferSelect;
@@ -138,3 +93,15 @@ export const postcodes = pgTable('postcodes', {
 });
 
 export type Postcode = typeof postcodes.$inferSelect;
+
+export const favourites = pgTable('favourites', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  vehicleId: integer('vehicle_id').notNull().references(() => vehicles.id, { onDelete: 'cascade' }),
+  dateSaved: timestamp('date_saved').defaultNow().notNull(),
+  deleted: boolean('deleted').default(false).notNull(),
+  deletedDate: timestamp('deleted_date'),
+});
+
+export type Favourite = typeof favourites.$inferSelect;
+export type NewFavourite = typeof favourites.$inferInsert;
